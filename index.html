@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Voice Change · interactive quiz</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      background: #f6f9fc;
+      font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+      padding: 2rem 1rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .container {
+      max-width: 1100px;
+      width: 100%;
+      background: white;
+      border-radius: 32px;
+      box-shadow: 0 20px 40px -12px rgba(0,20,40,0.25);
+      padding: 2rem 1.5rem;
+    }
+    h1 {
+      font-size: 2.2rem;
+      font-weight: 600;
+      letter-spacing: -0.5px;
+      color: #0b1e33;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      margin-bottom: 0.4rem;
+    }
+    .subhead {
+      color: #2c5775;
+      font-size: 1rem;
+      border-left: 4px solid #3b82f6;
+      padding-left: 1rem;
+      margin-bottom: 2rem;
+      background: #f0f7ff;
+      border-radius: 0 12px 12px 0;
+      padding: 0.8rem 1.2rem;
+    }
+    .rule-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.2rem;
+      background: #f2f8fe;
+      padding: 1.2rem;
+      border-radius: 24px;
+      margin-bottom: 2.2rem;
+    }
+    .rule-card {
+      background: white;
+      padding: 1rem 1.2rem;
+      border-radius: 18px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+      border: 1px solid #e4edf5;
+    }
+    .rule-card h3 {
+      font-weight: 600;
+      color: #0f2b44;
+      font-size: 1rem;
+      margin-bottom: 0.5rem;
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+    .rule-card h3 span {
+      background: #1d4ed8;
+      color: white;
+      border-radius: 40px;
+      font-size: 0.7rem;
+      padding: 0.1rem 0.6rem;
+    }
+    .rule-card p {
+      color: #1e3a5f;
+      font-size: 0.9rem;
+      line-height: 1.5;
+    }
+    .rule-card code {
+      background: #e6f0fa;
+      padding: 0.2rem 0.5rem;
+      border-radius: 12px;
+      font-size: 0.85rem;
+      color: #075985;
+    }
+    .example-badge {
+      background: #e6f0fa;
+      border-radius: 30px;
+      padding: 0.2rem 0.8rem;
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: #005c8a;
+    }
+    .question-panel {
+      margin: 2rem 0 1.5rem;
+    }
+    .question-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 0.8rem;
+    }
+    .q-item {
+      background: white;
+      border: 1px solid #dce8f2;
+      border-radius: 40px;
+      padding: 0.8rem 1.5rem;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      transition: 0.2s;
+      cursor: pointer;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+    }
+    .q-item:hover {
+      background: #f5faff;
+      border-color: #8bb9f0;
+      box-shadow: 0 4px 10px rgba(30, 100, 200, 0.08);
+    }
+    .q-text {
+      font-weight: 500;
+      color: #0b2a47;
+      font-size: 1rem;
+      flex: 2 1 220px;
+    }
+    .q-meta {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .q-type {
+      background: #deeaf8;
+      border-radius: 30px;
+      padding: 0.2rem 1rem;
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: #14447c;
+      letter-spacing: 0.3px;
+    }
+    .q-arrow {
+      color: #3b82f6;
+      font-weight: 300;
+      margin: 0 0.2rem;
+    }
+    .answer-box {
+      background: #f1f7fe;
+      border-radius: 24px;
+      padding: 1.2rem 1.8rem;
+      margin: 1.6rem 0 0.5rem;
+      border-left: 5px solid #2563eb;
+      display: none;
+      transition: 0.2s;
+    }
+    .answer-box.active {
+      display: block;
+    }
+    .answer-box strong {
+      color: #0f3b6a;
+      font-weight: 600;
+      display: block;
+      font-size: 1rem;
+      margin-bottom: 0.2rem;
+    }
+    .answer-box .explain {
+      color: #1e4c7a;
+      line-height: 1.6;
+      font-size: 0.95rem;
+      margin-top: 0.3rem;
+      background: #e3effa;
+      padding: 0.6rem 1rem;
+      border-radius: 18px;
+    }
+    .answer-box .rule-ref {
+      font-size: 0.8rem;
+      color: #2c5775;
+      margin-top: 0.5rem;
+      opacity: 0.8;
+    }
+    .footnote {
+      margin-top: 2rem;
+      font-size: 0.9rem;
+      color: #3b5d7a;
+      border-top: 1px solid #d1e1ef;
+      padding-top: 1.5rem;
+      text-align: center;
+      display: flex;
+      justify-content: center;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+    .footnote span {
+      background: #eaf1fa;
+      padding: 0.2rem 1rem;
+      border-radius: 30px;
+      font-size: 0.75rem;
+    }
+    @media (max-width: 700px) {
+      .container { padding: 1rem; }
+      .rule-grid { grid-template-columns: 1fr; }
+      .q-item { border-radius: 24px; padding: 0.8rem 1rem; }
+      .q-meta { margin-top: 0.3rem; }
+      .answer-box { padding: 1rem; }
+    }
+    .btn-reset {
+      background: white;
+      border: 1px solid #b6d0e8;
+      padding: 0.4rem 1.2rem;
+      border-radius: 40px;
+      color: #1b4a7a;
+      font-weight: 500;
+      cursor: pointer;
+      font-size: 0.8rem;
+      transition: 0.15s;
+      margin-left: 0.5rem;
+    }
+    .btn-reset:hover {
+      background: #e5f0fe;
+      border-color: #3b82f6;
+    }
+    .header-flex {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+    }
+  </style>
+</head>
+<body>
+<div class="container" id="app">
+  <div class="header-flex">
+    <h1>🎤 Voice Change · full bank</h1>
+    <button class="btn-reset" id="resetBtn">↻ reset all</button>
+  </div>
+  <div class="subhead">
+    ⚡ 30+ clickable questions · rules, examples & detailed explanations
+  </div>
+
+  <!-- RULES + EXAMPLES (condensed) -->
+  <div class="rule-grid">
+    <div class="rule-card"><h3><span>1</span> Active → Passive</h3><p><code>Subject + verb + object</code> → <code>Object + be + V3 + by + subject</code><br><span class="example-badge">ex</span> <strong>She writes a letter.</strong> → A letter is written by her.</p></div>
+    <div class="rule-card"><h3><span>2</span> Passive → Active</h3><p><code>Object + be + V3 + by + agent</code> → <code>Subject + verb + object</code><br><span class="example-badge">ex</span> <strong>The cake was eaten by John.</strong> → John ate the cake.</p></div>
+    <div class="rule-card"><h3><span>3</span> Modal verbs</h3><p><code>can, must, should, may</code> → <code>modal + be + V3</code><br><span class="example-badge">ex</span> <strong>You must finish it.</strong> → It must be finished by you.</p></div>
+    <div class="rule-card"><h3><span>4</span> Continuous tenses</h3><p>Present/Past continuous: <code>is/are/was/were + being + V3</code><br><span class="example-badge">ex</span> <strong>They are painting the house.</strong> → The house is being painted.</p></div>
+    <div class="rule-card"><h3><span>5</span> Imperative (orders)</h3><p>Use <code>let</code> or <code>you are ordered/requested</code><br><span class="example-badge">ex</span> <strong>Close the door.</strong> → Let the door be closed. / You are ordered to close the door.</p></div>
+    <div class="rule-card"><h3><span>6</span> Questions</h3><p>Wh- / yes-no: invert subject & auxiliary, then passive.<br><span class="example-badge">ex</span> <strong>Did she finish the work?</strong> → Was the work finished by her?</p></div>
+  </div>
+
+  <!-- QUESTION BANK (30+) -->
+  <div class="question-panel">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem;">
+      <span style="font-weight: 600; color: #0f344f;">📌 click any question to see answer + explanation</span>
+      <span style="background: #dae9f7; padding: 0.1rem 1rem; border-radius: 50px; font-size: 0.8rem;">32 questions</span>
+    </div>
+    <div class="question-grid" id="questionGrid"></div>
+  </div>
+
+  <!-- dynamic answer display -->
+  <div class="answer-box" id="answerBox">
+    <strong id="answerHead">Answer</strong>
+    <div id="answerDetail" class="explain">Explanation will appear here.</div>
+    <div id="answerRule" class="rule-ref">rule reference</div>
+  </div>
+  <div class="footnote">
+    <span>📘 all sentence types</span>
+    <span>🎯 active ↔ passive</span>
+    <span>🧠 rules + examples</span>
+  </div>
+</div>
+
+<script>
+  (function() {
+    // ---------- QUESTION BANK ----------
+    const questions = [
+      // mixed types: active→passive, passive→active, modals, continuous, imperatives, questions
+      { q: "She writes a letter.", type: "Active → Passive", answer: "A letter is written by her.", explanation: "Present simple: object (letter) + is + V3 (written) + by + subject (her).", rule: "Active→Passive (simple present)" },
+      { q: "The cake was eaten by John.", type: "Passive → Active", answer: "John ate the cake.", explanation: "Passive → Active: identify agent (John), object becomes subject, verb in past simple.", rule: "Passive→Active (past)" },
+      { q: "They are painting the house.", type: "Present continuous", answer: "The house is being painted by them.", explanation: "Present continuous passive: am/is/are + being + V3.", rule: "Continuous tense" },
+      { q: "The project will be finished by the team.", type: "Passive → Active", answer: "The team will finish the project.", explanation: "Future passive → active: subject (the team) + will + finish + object.", rule: "Future passive" },
+      { q: "You must complete the assignment.", type: "Modal verb", answer: "The assignment must be completed by you.", explanation: "Modal (must) + be + V3 (completed) + by + agent.", rule: "Modal: must" },
+      { q: "Did she send the email?", type: "Question (yes/no)", answer: "Was the email sent by her?", explanation: "Yes/no question: auxiliary (did) → was, subject becomes object, V3.", rule: "Question passive" },
+      { q: "Close the window.", type: "Imperative", answer: "Let the window be closed. / You are ordered to close the window.", explanation: "Imperative passive: use 'let' or 'you are ordered/requested'.", rule: "Imperative" },
+      { q: "The children have eaten the cookies.", type: "Present perfect", answer: "The cookies have been eaten by the children.", explanation: "Present perfect passive: have/has + been + V3.", rule: "Perfect tense" },
+      { q: "The movie was watched by millions.", type: "Passive → Active", answer: "Millions watched the movie.", explanation: "Passive → Active: agent (millions) becomes subject, past tense.", rule: "Passive→Active" },
+      { q: "They will announce the results.", type: "Future simple", answer: "The results will be announced by them.", explanation: "Future passive: will + be + V3.", rule: "Future simple" },
+      { q: "Is the chef preparing the meal?", type: "Question (present continuous)", answer: "Is the meal being prepared by the chef?", explanation: "Passive question: auxiliary + subject + being + V3.", rule: "Continuous question" },
+      { q: "The teacher gave us a test.", type: "Active → Passive (double object)", answer: "A test was given to us by the teacher. / We were given a test by the teacher.", explanation: "Two objects: either object can become subject.", rule: "Double object" },
+      { q: "The manager might sign the contract.", type: "Modal (might)", answer: "The contract might be signed by the manager.", explanation: "Modal (might) + be + V3.", rule: "Modal: might" },
+      { q: "Someone stole my bicycle.", type: "Active → Passive", answer: "My bicycle was stolen (by someone).", explanation: "Agent unknown/omitted; passive with 'by someone' optional.", rule: "Passive (agent omitted)" },
+      { q: "They were repairing the road.", type: "Past continuous", answer: "The road was being repaired by them.", explanation: "Past continuous passive: was/were + being + V3.", rule: "Past continuous" },
+      { q: "The document has to be signed.", type: "Passive → Active", answer: "Someone has to sign the document.", explanation: "Passive with 'has to' → active: someone + has to + sign.", rule: "Passive→Active (modal)" },
+      { q: "Please turn off the lights.", type: "Imperative (request)", answer: "You are requested to turn off the lights. / Let the lights be turned off.", explanation: "Polite imperative passive: request form.", rule: "Imperative (request)" },
+      { q: "Had they completed the task?", type: "Past perfect question", answer: "Had the task been completed by them?", explanation: "Past perfect passive question: had + been + V3.", rule: "Past perfect question" },
+      { q: "The news surprised everyone.", type: "Active → Passive", answer: "Everyone was surprised by the news.", explanation: "Simple past passive: was/were + V3.", rule: "Simple past" },
+      { q: "The package will be delivered tomorrow.", type: "Passive → Active", answer: "They will deliver the package tomorrow.", explanation: "Passive → Active: add subject (they) + will + deliver.", rule: "Future passive" },
+      { q: "Can you solve this puzzle?", type: "Modal question", answer: "Can this puzzle be solved by you?", explanation: "Modal question passive: can + object + be + V3.", rule: "Modal question" },
+      { q: "They have not finished the work.", type: "Present perfect negative", answer: "The work has not been finished by them.", explanation: "Negative present perfect passive: have/has + not + been + V3.", rule: "Perfect negative" },
+      { q: "The letter was being written.", type: "Passive → Active", answer: "Someone was writing the letter.", explanation: "Past continuous passive → active: subject (someone) + was writing.", rule: "Passive→Active continuous" },
+      { q: "Open the box.", type: "Imperative", answer: "Let the box be opened. / You are ordered to open the box.", explanation: "Imperative passive: 'let' structure.", rule: "Imperative" },
+      { q: "Does he play the guitar?", type: "Question (simple present)", answer: "Is the guitar played by him?", explanation: "Simple present passive question: is/are + object + V3.", rule: "Present simple question" },
+      { q: "The results were announced by the principal.", type: "Passive → Active", answer: "The principal announced the results.", explanation: "Passive → Active: subject (principal) + past verb.", rule: "Passive→Active" },
+      { q: "They ought to obey the rules.", type: "Modal (ought to)", answer: "The rules ought to be obeyed by them.", explanation: "Modal 'ought to' + be + V3.", rule: "Modal: ought to" },
+      { q: "Who wrote this book?", type: "Wh- question", answer: "Who was this book written by?", explanation: "Wh- passive: question word + auxiliary + subject + V3.", rule: "Wh- question passive" },
+      { q: "The house was cleaned every day.", type: "Passive → Active", answer: "Someone cleaned the house every day.", explanation: "Agent unknown → use 'someone' in active.", rule: "Passive→Active (unknown agent)" },
+      { q: "The problem could be solved.", type: "Passive → Active (modal)", answer: "Someone could solve the problem.", explanation: "Modal passive → active: add agent 'someone'.", rule: "Passive→Active (modal)" },
+      { q: "Have you ever visited Paris?", type: "Question (present perfect)", answer: "Has Paris ever been visited by you?", explanation: "Present perfect passive question: have/has + object + been + V3.", rule: "Perfect question" },
+      { q: "Let the door be opened.", type: "Passive → Active (imperative)", answer: "Open the door. / Someone should open the door.", explanation: "Passive imperative → active: direct imperative.", rule: "Imperative active" }
+    ];
+
+    // shuffle for variety (but keep all)
+    function shuffleArray(arr) {
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+    const shuffled = shuffleArray([...questions]);
+
+    const grid = document.getElementById('questionGrid');
+    const answerBox = document.getElementById('answerBox');
+    const answerHead = document.getElementById('answerHead');
+    const answerDetail = document.getElementById('answerDetail');
+    const answerRule = document.getElementById('answerRule');
+
+    let activeIndex = null;
+
+    function renderQuestions() {
+      grid.innerHTML = '';
+      shuffled.forEach((item, idx) => {
+        const div = document.createElement('div');
+        div.className = 'q-item';
+        div.dataset.index = idx;
+        // build inner
+        div.innerHTML = `
+          <span class="q-text">${item.q}</span>
+          <span class="q-meta">
+            <span class="q-type">${item.type}</span>
+            <span class="q-arrow">▶</span>
+          </span>
+        `;
+        div.addEventListener('click', function(e) {
+          const index = parseInt(this.dataset.index);
+          showAnswer(index);
+        });
+        grid.appendChild(div);
+      });
+    }
+
+    function showAnswer(index) {
+      const q = shuffled[index];
+      if (!q) return;
+      activeIndex = index;
+      answerHead.textContent = `✏️ ${q.q}`;
+      answerDetail.innerHTML = `<strong>✔️ ${q.answer}</strong><br><span style="display:block; margin-top: 0.3rem;">${q.explanation}</span>`;
+      answerRule.textContent = `📖 rule: ${q.rule}`;
+      answerBox.classList.add('active');
+      // scroll to answer
+      answerBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      // highlight active question
+      document.querySelectorAll('.q-item').forEach(el => el.style.background = '');
+      const target = document.querySelector(`.q-item[data-index="${index}"]`);
+      if (target) target.style.background = '#e1effb';
+    }
+
+    // reset 
+    document.getElementById('resetBtn').addEventListener('click', function() {
+      answerBox.classList.remove('active');
+      document.querySelectorAll('.q-item').forEach(el => el.style.background = '');
+      activeIndex = null;
+      // re-shuffle? optional: we keep same order, but reset view
+      // we can reshuffle for freshness: 
+      // but to keep consistent, just clear answer.
+      // optional: re-render in new order? 
+      // we reshuffle on each reset to make it dynamic
+      // but careful: if we reshuffle, we need to re-render
+      // we'll do a fresh shuffle (keep all questions)
+      const fresh = shuffleArray([...questions]);
+      shuffled.length = 0;
+      shuffled.push(...fresh);
+      renderQuestions();
+      answerBox.classList.remove('active');
+    });
+
+    // initial render
+    renderQuestions();
+
+    // show first question as example? (optional)
+    // we can show first question answer after a small delay? 
+    // better: no auto, but user click.
+    // but we want to show something? 
+    // we'll set a demo on load: show first question 
+    setTimeout(() => {
+      if (shuffled.length) {
+        showAnswer(0);
+      }
+    }, 200);
+  })();
+</script>
+</body>
+  </html>
